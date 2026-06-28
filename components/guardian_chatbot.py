@@ -1,423 +1,255 @@
-"""
-GuardianGPT Enterprise AI Governance Copilot
-Author : M. Vignesh
-Version : 1.0
-
-Main Chat UI
-"""
-
 from __future__ import annotations
-
 import time
 import uuid
 from datetime import datetime
-
 import streamlit as st
 
 # ==========================================================
-# PAGE CONFIG
+# INITIALIZATION
 # ==========================================================
-
 def init_guardian():
-    """Initialize session state."""
-
     defaults = {
         "guardian_messages": [],
-        "guardian_memory": [],
-        "guardian_uploads": [],
-        "guardian_thinking": False,
-        "guardian_theme": "dark",
         "guardian_agent": "Auto",
     }
-
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
 
-
 # ==========================================================
 # STYLING
 # ==========================================================
-
 def inject_css():
-    st.markdown(
-        """
-<style>
-
-.chat-title{
-font-size:34px;
-font-weight:700;
-color:white;
-margin-bottom:5px;
-}
-
-.chat-sub{
-color:#A9B2C3;
-margin-bottom:20px;
-}
-
-.user-box{
-background:#0F172A;
-padding:14px;
-border-radius:12px;
-margin:8px 0;
-border-left:5px solid #3B82F6;
-}
-
-.ai-box{
-background:#1E293B;
-padding:14px;
-border-radius:12px;
-margin:8px 0;
-border-left:5px solid #10B981;
-}
-
-.metric-card{
-background:#111827;
-padding:12px;
-border-radius:12px;
-text-align:center;
-}
-
-.small{
-font-size:13px;
-color:#A0AEC0;
-}
-
-.agent-pill{
-display:inline-block;
-padding:6px 14px;
-background:#2563EB;
-color:white;
-border-radius:20px;
-margin-right:8px;
-margin-bottom:8px;
-font-size:13px;
-}
-
-</style>
-""",
-        unsafe_allow_html=True,
-    )
-
+    st.markdown("""
+    <style>
+    .chat-title{font-size:36px;font-weight:700;color:white;margin-bottom:5px;}
+    .chat-sub{color:#A9B2C3;margin-bottom:20px;}
+    .agent-pill{display:inline-block;padding:6px 14px;background:#2563EB;color:white;border-radius:20px;font-size:13px;}
+    </style>
+    """, unsafe_allow_html=True)
 
 # ==========================================================
 # HEADER
 # ==========================================================
-
 def hero():
-
     c1, c2 = st.columns([4, 1])
-
     with c1:
-
-        st.markdown(
-            """
-<div class='chat-title'>
-🛡 GuardianGPT
-</div>
-<div class='chat-sub'>
-Enterprise Responsible AI Copilot
-</div>
-""",
-            unsafe_allow_html=True,
-        )
-
+        st.markdown("""
+        <div class='chat-title'>🛡 GuardianGPT</div>
+        <div class='chat-sub'>Enterprise Responsible AI Governance Copilot</div>
+        """, unsafe_allow_html=True)
     with c2:
         st.success("● Online")
-
 
 # ==========================================================
 # DASHBOARD
 # ==========================================================
-
 def dashboard():
-
     c1, c2, c3, c4 = st.columns(4)
-
-    with c1:
-        st.metric("Models", "12", "+1")
-
-    with c2:
-        st.metric("Compliance", "94%", "+2%")
-
-    with c3:
-        st.metric("Risk", "Low")
-
-    with c4:
-        st.metric("Alerts", "3")
-
+    with c1: st.metric("Models", "12", "+1")
+    with c2: st.metric("Compliance", "94%", "+2%")
+    with c3: st.metric("Risk", "Low")
+    with c4: st.metric("Alerts", "3")
 
 # ==========================================================
 # SIDEBAR
 # ==========================================================
-
 def sidebar():
-
-    st.sidebar.title("GuardianGPT")
-
+    st.sidebar.title("🛡 GuardianGPT")
     st.sidebar.selectbox(
         "Active Agent",
-        [
-            "Auto",
-            "Compliance",
-            "Risk",
-            "Fairness",
-            "Privacy",
-            "Explainability",
-            "Monitoring",
-            "Reports",
-        ],
-        key="guardian_agent",
+        ["Auto", "Compliance", "Risk", "Fairness", "Privacy", "Explainability", "Monitoring", "Reports"],
+        key="guardian_agent"
     )
-
     st.sidebar.divider()
-
     st.sidebar.markdown("### Suggested Questions")
-
+    
     prompts = [
-        "Audit my model",
-        "Generate Model Card",
-        "Generate AI Nutrition Label",
-        "Explain bias score",
-        "Explain SHAP values",
-        "Create compliance report",
-        "Check EU AI Act",
-        "Check ISO 42001",
-        "Find risks",
-        "Generate executive summary",
+        "Audit my model", "Generate Model Card", "Generate AI Nutrition Label",
+        "Explain bias score", "Explain SHAP values", "Create compliance report",
+        "Check EU AI Act", "Find risks", "Assess privacy risks", "Generate executive summary"
     ]
-
     for p in prompts:
         if st.sidebar.button(p, use_container_width=True):
-            add_user_message(p)
-
+            st.session_state.guardian_messages.append({
+                "id": str(uuid.uuid4()),
+                "role": "user",
+                "content": p,
+                "time": datetime.now(),
+            })
+            st.rerun()
 
 # ==========================================================
 # MESSAGE HELPERS
 # ==========================================================
-
-def add_user_message(text):
-
-    st.session_state.guardian_messages.append(
-        {
-            "id": str(uuid.uuid4()),
-            "role": "user",
-            "content": text,
-            "time": datetime.now(),
-        }
-    )
-
-
 def add_ai_message(text, agent="Guardian"):
-
-    st.session_state.guardian_messages.append(
-        {
-            "id": str(uuid.uuid4()),
-            "role": "assistant",
-            "agent": agent,
-            "content": text,
-            "time": datetime.now(),
-        }
-    )
-
+    st.session_state.guardian_messages.append({
+        "id": str(uuid.uuid4()),
+        "role": "assistant",
+        "agent": agent,
+        "content": text,
+        "time": datetime.now(),
+    })
 
 # ==========================================================
-# STREAMING
+# STREAMING EFFECT
 # ==========================================================
-
-def stream(text):
-
+def stream_response(text):
     placeholder = st.empty()
-
     output = ""
-
     for word in text.split():
-
         output += word + " "
-
-        placeholder.markdown(output)
-
-        time.sleep(0.02)
-
-    return output
-
+        placeholder.markdown(output + "▌")
+        time.sleep(0.018)
+    placeholder.markdown(text)
 
 # ==========================================================
-# SIMPLE ROUTER (temporary)
-# This will be replaced by ai_router.py later.
+# MAIN ROUTER - RICH ANSWERS FOR EVERY AGENT
 # ==========================================================
-
-def route(question):
-
+def route(question: str):
     q = question.lower()
+    agent = st.session_state.guardian_agent
 
-    if "risk" in q:
+    if agent == "Auto":
+        if any(word in q for word in ["risk", "danger", "hazard"]):
+            agent = "Risk"
+        elif any(word in q for word in ["bias", "fairness"]):
+            agent = "Fairness"
+        elif any(word in q for word in ["privacy", "gdpr", "pii"]):
+            agent = "Privacy"
+        elif "model card" in q or "compliance" in q or "eu ai" in q:
+            agent = "Compliance"
+        elif any(word in q for word in ["explain", "shap", "lime"]):
+            agent = "Explainability"
+        elif "monitor" in q or "drift" in q:
+            agent = "Monitoring"
+        elif "report" in q or "summary" in q:
+            agent = "Reports"
 
-        return (
-            "Risk Agent",
-            """
-### Risk Assessment
+    # === RESPONSES ===
+    if agent == "Risk":
+        return agent, """### 🛡️ Risk Assessment
+**Overall Risk**: **LOW**
 
-Overall Risk : LOW
+**Key Findings**:
+- No critical risks detected
+- Moderate data drift observed
+- Adversarial robustness: Good
 
-Critical Issues
-- Missing monitoring alerts
-- Model card needs updating
+**Recommendations**:
+- Enable real-time monitoring
+- Schedule quarterly audits
+- Add input validation"""
 
-Recommendation
-- Enable drift monitoring
-- Schedule bias audit
-- Review privacy controls
-""",
-        )
+    elif agent == "Fairness":
+        return agent, """### ⚖️ Fairness Analysis
+**Demographic Parity**: PASS  
+**Equal Opportunity**: PASS  
+**Equalized Odds**: PASS  
 
-    elif "bias" in q or "fairness" in q:
+**Bias Score**: **0.07** (Very Low)  
+**Status**: **LOW RISK**
 
-        return (
-            "Fairness Agent",
-            """
-### Fairness Analysis
+Protected attributes (Gender, Race, Age) are properly handled."""
 
-Demographic Parity : PASS
+    elif agent == "Privacy":
+        return agent, """### 🔒 Privacy Assessment
+**Privacy Risk**: Medium
 
-Equal Opportunity : PASS
+**Issues**:
+- Training data may contain PII
+- No differential privacy applied
 
-Equalized Odds : PASS
+**Recommendations**:
+- Implement data anonymization
+- Add consent tracking
+- Use federated learning where possible"""
 
-Protected Attributes
+    elif agent == "Compliance":
+        return agent, """### 📋 Compliance Status
+**EU AI Act**: Compliant  
+**ISO 42001**: 91% Compliant  
 
-✓ Gender ignored
+**Model Card Status**: Ready for generation"""
 
-✓ Religion ignored
+    elif agent == "Explainability":
+        return agent, """### 🔍 Explainability Report
+**Most Important Features**: transaction_amount, velocity, location_risk
 
-✓ Race ignored
+**SHAP Analysis** available for individual predictions."""
 
-Bias Score
+    elif agent == "Monitoring":
+        return agent, """### 📈 Monitoring Dashboard
+**Status**: Healthy  
+**Data Drift**: Warning in 1 feature  
+**Prediction Latency**: 42ms"""
 
-0.07
-
-Status
-
-LOW RISK
-""",
-        )
-
-    elif "model card" in q:
-
-        return (
-            "Compliance Agent",
-            """
-## AI Model Card
-
-Model
-
-Fraud Detection
-
-Version
-
-2.3
-
-Accuracy
-
-96.8%
-
-Risk
-
-LOW
-
-Owner
-
-AI Guardian OS
-
-Deployment
-
-Approved
-""",
-        )
+    elif agent == "Reports":
+        return agent, """### 📊 Executive Summary
+All high-risk models are compliant.  
+Overall Governance Maturity: **Level 3**"""
 
     else:
+        return "Guardian", f"""Understood: **{question}**
 
-        return (
-            "Guardian",
-            f"""
-I understood:
+I can help you with **Responsible AI** topics:
+- Risk Assessment
+- Fairness & Bias
+- Privacy & GDPR
+- Model Cards & Compliance
+- Explainability (SHAP)
+- Monitoring & Reports
 
-> {question}
-
-I can help you with:
-
-• AI Governance
-
-• Compliance
-
-• Fairness
-
-• Privacy
-
-• Risk
-
-• Explainability
-
-• Monitoring
-
-• Executive Reports
-""",
-        )
-
+What would you like to explore?"""
 
 # ==========================================================
 # CHAT WINDOW
 # ==========================================================
-
 def chat_window():
-
-    for message in st.session_state.guardian_messages:
-
-        if message["role"] == "user":
-
+    for msg in st.session_state.guardian_messages:
+        if msg["role"] == "user":
             with st.chat_message("user"):
-                st.markdown(message["content"])
-
+                st.markdown(msg["content"])
         else:
-
             with st.chat_message("assistant"):
-
-                st.caption(message.get("agent", "Guardian"))
-
-                st.markdown(message["content"])
-
+                st.caption(f"**{msg.get('agent', 'Guardian')}**")
+                st.markdown(msg["content"])
 
 # ==========================================================
 # MAIN
 # ==========================================================
-
-def guardian_chat():
-
+def main():
+    st.set_page_config(page_title="GuardianGPT", layout="wide")
     init_guardian()
-
     inject_css()
 
     sidebar()
-
     hero()
-
     dashboard()
-
     chat_window()
 
-    prompt = st.chat_input("Ask GuardianGPT anything about Responsible AI...")
-
+    prompt = st.chat_input("Ask anything about Responsible AI Governance...")
+    
     if prompt:
+        # Add user message
+        st.session_state.guardian_messages.append({
+            "id": str(uuid.uuid4()),
+            "role": "user",
+            "content": prompt,
+            "time": datetime.now(),
+        })
+        st.rerun()
 
-        add_user_message(prompt)
-
-        agent, answer = route(prompt)
-
+    # Show AI response
+    if st.session_state.guardian_messages and st.session_state.guardian_messages[-1]["role"] == "user":
+        last_q = st.session_state.guardian_messages[-1]["content"]
+        agent, answer = route(last_q)
+        
         with st.chat_message("assistant"):
-
-            st.caption(agent)
-
-            stream(answer)
-
+            st.caption(f"**{agent}**")
+            stream_response(answer)
+        
         add_ai_message(answer, agent)
+
+if __name__ == "__main__":
+    main()
