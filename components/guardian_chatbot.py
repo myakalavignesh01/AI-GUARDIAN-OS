@@ -1,4 +1,3 @@
-from __future__ import annotations
 import time
 import uuid
 from datetime import datetime
@@ -80,19 +79,7 @@ def sidebar():
             st.rerun()
 
 # ==========================================================
-# MESSAGE HELPERS
-# ==========================================================
-def add_ai_message(text, agent="Guardian"):
-    st.session_state.guardian_messages.append({
-        "id": str(uuid.uuid4()),
-        "role": "assistant",
-        "agent": agent,
-        "content": text,
-        "time": datetime.now(),
-    })
-
-# ==========================================================
-# STREAMING EFFECT
+# STREAMING
 # ==========================================================
 def stream_response(text):
     placeholder = st.empty()
@@ -104,7 +91,7 @@ def stream_response(text):
     placeholder.markdown(text)
 
 # ==========================================================
-# MAIN ROUTER - RICH ANSWERS FOR EVERY AGENT
+# ROUTER WITH RICH ANSWERS
 # ==========================================================
 def route(question: str):
     q = question.lower()
@@ -117,90 +104,39 @@ def route(question: str):
             agent = "Fairness"
         elif any(word in q for word in ["privacy", "gdpr", "pii"]):
             agent = "Privacy"
-        elif "model card" in q or "compliance" in q or "eu ai" in q:
+        elif any(word in q for word in ["model card", "compliance", "eu ai", "iso"]):
             agent = "Compliance"
         elif any(word in q for word in ["explain", "shap", "lime"]):
             agent = "Explainability"
-        elif "monitor" in q or "drift" in q:
+        elif any(word in q for word in ["monitor", "drift"]):
             agent = "Monitoring"
-        elif "report" in q or "summary" in q:
+        elif any(word in q for word in ["report", "summary"]):
             agent = "Reports"
 
-    # === RESPONSES ===
+    # === DETAILED RESPONSES ===
     if agent == "Risk":
-        return agent, """### 🛡️ Risk Assessment
-**Overall Risk**: **LOW**
-
-**Key Findings**:
-- No critical risks detected
-- Moderate data drift observed
-- Adversarial robustness: Good
-
-**Recommendations**:
-- Enable real-time monitoring
-- Schedule quarterly audits
-- Add input validation"""
-
+        return agent, """### 🛡️ Risk Assessment\n**Overall Risk**: **LOW**\n\n**Key Findings**:\n- No critical risks detected\n- Moderate data drift observed\n\n**Recommendations**:\n- Enable real-time monitoring\n- Schedule quarterly audits"""
+    
     elif agent == "Fairness":
-        return agent, """### ⚖️ Fairness Analysis
-**Demographic Parity**: PASS  
-**Equal Opportunity**: PASS  
-**Equalized Odds**: PASS  
-
-**Bias Score**: **0.07** (Very Low)  
-**Status**: **LOW RISK**
-
-Protected attributes (Gender, Race, Age) are properly handled."""
-
+        return agent, """### ⚖️ Fairness Analysis\n**Demographic Parity**: PASS  \n**Equal Opportunity**: PASS  \n**Bias Score**: **0.07** (Very Low)\n\n**Status**: LOW RISK"""
+    
     elif agent == "Privacy":
-        return agent, """### 🔒 Privacy Assessment
-**Privacy Risk**: Medium
-
-**Issues**:
-- Training data may contain PII
-- No differential privacy applied
-
-**Recommendations**:
-- Implement data anonymization
-- Add consent tracking
-- Use federated learning where possible"""
-
+        return agent, """### 🔒 Privacy Assessment\n**Privacy Risk**: Medium\n\n**Recommendations**:\n- Implement data anonymization\n- Add consent tracking"""
+    
     elif agent == "Compliance":
-        return agent, """### 📋 Compliance Status
-**EU AI Act**: Compliant  
-**ISO 42001**: 91% Compliant  
-
-**Model Card Status**: Ready for generation"""
-
+        return agent, """### 📋 Compliance Status\n**EU AI Act**: Compliant  \n**ISO 42001**: 91% Compliant\n\n**Model Card**: Ready"""
+    
     elif agent == "Explainability":
-        return agent, """### 🔍 Explainability Report
-**Most Important Features**: transaction_amount, velocity, location_risk
-
-**SHAP Analysis** available for individual predictions."""
-
+        return agent, """### 🔍 Explainability Report\n**SHAP Analysis** available.\nTop features: transaction_amount, velocity"""
+    
     elif agent == "Monitoring":
-        return agent, """### 📈 Monitoring Dashboard
-**Status**: Healthy  
-**Data Drift**: Warning in 1 feature  
-**Prediction Latency**: 42ms"""
-
+        return agent, """### 📈 Monitoring\n**Status**: Healthy\n**Data Drift**: Warning in 1 feature"""
+    
     elif agent == "Reports":
-        return agent, """### 📊 Executive Summary
-All high-risk models are compliant.  
-Overall Governance Maturity: **Level 3**"""
-
+        return agent, """### 📊 Executive Summary\nAll high-risk models are compliant."""
+    
     else:
-        return "Guardian", f"""Understood: **{question}**
-
-I can help you with **Responsible AI** topics:
-- Risk Assessment
-- Fairness & Bias
-- Privacy & GDPR
-- Model Cards & Compliance
-- Explainability (SHAP)
-- Monitoring & Reports
-
-What would you like to explore?"""
+        return "Guardian", f"Understood: **{question}**\n\nHow can I help you with Responsible AI today?"
 
 # ==========================================================
 # CHAT WINDOW
@@ -216,22 +152,20 @@ def chat_window():
                 st.markdown(msg["content"])
 
 # ==========================================================
-# MAIN
+# MAIN FUNCTION (Export this)
 # ==========================================================
-def main():
-    st.set_page_config(page_title="GuardianGPT", layout="wide")
+def guardian_chat():
     init_guardian()
     inject_css()
-
+    
     sidebar()
     hero()
     dashboard()
     chat_window()
 
-    prompt = st.chat_input("Ask anything about Responsible AI Governance...")
+    prompt = st.chat_input("Ask GuardianGPT anything about Responsible AI...")
     
     if prompt:
-        # Add user message
         st.session_state.guardian_messages.append({
             "id": str(uuid.uuid4()),
             "role": "user",
@@ -240,7 +174,7 @@ def main():
         })
         st.rerun()
 
-    # Show AI response
+    # AI Response
     if st.session_state.guardian_messages and st.session_state.guardian_messages[-1]["role"] == "user":
         last_q = st.session_state.guardian_messages[-1]["content"]
         agent, answer = route(last_q)
@@ -249,7 +183,10 @@ def main():
             st.caption(f"**{agent}**")
             stream_response(answer)
         
-        add_ai_message(answer, agent)
-
-if __name__ == "__main__":
-    main()
+        st.session_state.guardian_messages.append({
+            "id": str(uuid.uuid4()),
+            "role": "assistant",
+            "agent": agent,
+            "content": answer,
+            "time": datetime.now(),
+        })
