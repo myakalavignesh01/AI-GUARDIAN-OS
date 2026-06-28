@@ -144,9 +144,3 @@ to begin your Responsible AI workflow.
 from components.guardian_chatbot import guardian_chat
 
 guardian_chat()
-    st.page_link("pages/2_Demo_Scenarios.py", label="Demo Scenarios", icon="🎬")
-    st.page_link("pages/4_Settings.py", label="Settings", icon="⚙️")
-
-
-
-
