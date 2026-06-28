@@ -1,116 +1,193 @@
-import streamlit as st  
-from datetime import datetime  
-import uuid  
+import streamlit as st
+from datetime import datetime
+import uuid
 
-st.set_page_config(page_title="AI Trust Certificate", page_icon="🛡️", layout="wide")  
+st.set_page_config(page_title="AI Trust Certificate", page_icon="🛡️", layout="wide")
 
-st.title("🛡️ AI Guardian OS")  
-st.subheader("AI Trust Score & Certificate")  
+st.title("🛡️ AI Guardian OS")
+st.subheader("AI Trust Score & Certificate")
 
-# Get scores from previous pages if available  
-fairness = st.session_state.get("fairness_score", 90)  
-privacy = st.session_state.get("privacy_score", 95)  
-explainability = st.session_state.get("explainability_score", 92)  
-compliance = st.session_state.get("compliance_score", 91)  
-quality = st.session_state.get("data_quality_score", 89)  
+# Get scores from previous pages if available
+fairness = st.session_state.get("fairness_score", 90)
+privacy = st.session_state.get("privacy_score", 95)
+explainability = st.session_state.get("explainability_score", 92)
+compliance = st.session_state.get("compliance_score", 91)
+quality = st.session_state.get("data_quality_score", 89)
 
-# Trust Score  
-trust_score = round(  
-    fairness * 0.25 +  
-    privacy * 0.20 +  
-    explainability * 0.20 +  
-    compliance * 0.20 +  
-    quality * 0.15  
-)  
+# Trust Score
+trust_score = round(
+    fairness * 0.25 +
+    privacy * 0.20 +
+    explainability * 0.20 +
+    compliance * 0.20 +
+    quality * 0.15
+)
 
-if trust_score >= 80:  
-    status = "🟢 APPROVED FOR DEPLOYMENT"  
-elif trust_score >= 60:  
-    status = "🟡 REVIEW REQUIRED"  
-else:  
-    status = "🔴 REJECTED"  
+if trust_score >= 80:
+    status = "🟢 APPROVED FOR DEPLOYMENT"
+elif trust_score >= 60:
+    status = "🟡 REVIEW REQUIRED"
+else:
+    status = "🔴 REJECTED"
 
-st.markdown("---")  
+st.markdown("---")
 
-c1, c2, c3 = st.columns(3)  
+c1, c2, c3 = st.columns(3)
 
-c1.metric("🛡️ AI Trust Score", f"{trust_score}/100")  
-c2.metric("Fairness", f"{fairness}%")  
-c3.metric("Privacy", f"{privacy}%")  
+c1.metric("🛡️ AI Trust Score", f"{trust_score}/100")
+c2.metric("Fairness", f"{fairness}%")
+c3.metric("Privacy", f"{privacy}%")
 
-st.progress(trust_score / 100)  
+st.progress(trust_score / 100)
 
-st.success(status)  
+st.success(status)
 
-st.markdown("## Score Breakdown")  
+st.markdown("## Score Breakdown")
 
-st.table({  
-    "Category": [  
-        "Fairness",  
-        "Privacy",  
-        "Explainability",  
-        "Compliance",  
-        "Data Quality"  
-    ],  
-    "Score": [  
-        fairness,  
-        privacy,  
-        explainability,  
-        compliance,  
-        quality  
-    ]  
-})  
+st.table({
+    "Category": [
+        "Fairness",
+        "Privacy",
+        "Explainability",
+        "Compliance",
+        "Data Quality"
+    ],
+    "Score": [
+        fairness,
+        privacy,
+        explainability,
+        compliance,
+        quality
+    ]
+})
 
-st.markdown("---")  
+st.markdown("---")
 
-certificate_id = "AIG-" + str(uuid.uuid4())[:8].upper()  
+certificate_id = "AIG-" + str(uuid.uuid4())[:8].upper()
 
-st.markdown("## 📜 AI Trust Certificate")  
+st.markdown("## 📜 AI TRUST CERTIFICATE")
 
-# Real certificate using HTML/CSS  
-cert_html = f"""  
-<div style="  
-    background: linear-gradient(135deg, #fdf8f0, #f5ead0);  
-    border: 8px double #b8860b;  
-    border-radius: 8px;  
-    padding: 35px 40px;  
-    margin: 15px 0;  
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15);  
-    position: relative;  
-    font-family: 'Georgia', 'Times New Roman', serif;  
-">  
-    <div style="  
-        position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;  
-        border: 1px solid rgba(184,134,11,0.25);  
-        pointer-events: none;  
-    "></div>  
+# More realistic certificate design using HTML/CSS
+st.markdown(f"""
+<div style="
+    border: 3px solid #1a3a5c;
+    border-radius: 15px;
+    padding: 30px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    font-family: 'Georgia', serif;
+    max-width: 700px;
+    margin: auto;
+    text-align: center;
+">
 
-    <div style="  
-        position: absolute; top: 50%; left: 50%;  
-        transform: translate(-50%, -50%) rotate(-25deg);  
-        font-size: 120px; font-weight: bold;  
-        color: rgba(184,134,11,0.06);  
-        white-space: nowrap; pointer-events: none;  
-    ">AI GUARDIAN</div>  
+    <div style="font-size: 14px; color: #1a3a5c; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 5px;">
+        AI Guardian OS
+    </div>
 
-    <div style="text-align: center; position: relative; z-index: 1;">  
-        <div style="font-size: 48px;">🛡️</div>  
-        <div style="  
-            font-size: 24px; font-weight: bold; color: #2c1810;  
-            letter-spacing: 3px; text-transform: uppercase;  
-            font-family: Arial, sans-serif;  
-        ">AI Guardian OS</div>  
-        <div style="  
-            font-size: 12px; color: #7a6b52; letter-spacing: 4px;  
-            text-transform: uppercase; margin-top: 2px;  
-        ">Responsible AI Assessment System</div>  
-    </div>  
+    <hr style="border: 1px solid #1a3a5c; width: 80%;">
 
-    <div style="  
-        width: 60%; height: 2px; margin: 15px auto;  
-        background: linear-gradient(to right, transparent, #b8860b, transparent);  
-    "></div>  
+    <h1 style="color: #1a3a5c; font-size: 28px; margin: 15px 0; font-weight: bold;">
+        🛡️ Certificate of AI Trust
+    </h1>
 
-    <div style="text-align: center; position: relative; z-index: 1;">  
-        <h2 style="  
-            font-size: 30px; color: #1a3a5c; text-transform
+    <p style="font-size: 14px; color: #555; font-style: italic;">
+        This certifies that the AI system has undergone Responsible AI assessment
+    </p>
+
+    <hr style="border: 0.5px solid #ccc; width: 60%;">
+
+    <p style="font-size: 12px; color: #777;">
+        Certificate ID: <span style="font-family: monospace; font-weight: bold;">{certificate_id}</span>
+    </p>
+
+    <p style="font-size: 12px; color: #777;">
+        Issued on: {datetime.now().strftime("%B %d, %Y")}
+    </p>
+
+    <div style="
+        background: #1a3a5c;
+        color: white;
+        font-size: 48px;
+        font-weight: bold;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 20px auto;
+        width: 200px;
+    ">
+        {trust_score}/100
+    </div>
+
+    <div style="font-size: 16px; font-weight: bold; margin: 15px 0;">
+        {"✅ APPROVED FOR DEPLOYMENT" if trust_score >= 80 else "⚠️ REVIEW REQUIRED" if trust_score >= 60 else "❌ REJECTED"}
+    </div>
+
+    <table style="margin: 20px auto; border-collapse: collapse; width: 80%;">
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 8px; text-align: left; font-weight: bold;">Fairness</td>
+            <td style="padding: 8px; text-align: right;">✅ {fairness}%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 8px; text-align: left; font-weight: bold;">Privacy</td>
+            <td style="padding: 8px; text-align: right;">✅ {privacy}%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 8px; text-align: left; font-weight: bold;">Explainability</td>
+            <td style="padding: 8px; text-align: right;">✅ {explainability}%</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #ccc;">
+            <td style="padding: 8px; text-align: left; font-weight: bold;">Compliance</td>
+            <td style="padding: 8px; text-align: right;">✅ {compliance}%</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px; text-align: left; font-weight: bold;">Data Quality</td>
+            <td style="padding: 8px; text-align: right;">✅ {quality}%</td>
+        </tr>
+    </table>
+
+    <hr style="border: 1px solid #1a3a5c; width: 80%; margin-top: 20px;">
+
+    <p style="font-size: 11px; color: #999; margin-top: 15px;">
+        This certificate is automatically generated by AI Guardian OS
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
+# Download certificate (plain text version)
+certificate = f"""
+========================================
+        AI GUARDIAN OS
+    CERTIFICATE OF AI TRUST
+========================================
+
+Certificate ID  : {certificate_id}
+Issued On       : {datetime.now().strftime("%B %d, %Y")}
+
+----------------------------------------
+    OVERALL TRUST SCORE: {trust_score}/100
+----------------------------------------
+
+Assessment Results:
+  ✅ Fairness       : {fairness}%
+  ✅ Privacy        : {privacy}%
+  ✅ Explainability : {explainability}%
+  ✅ Compliance     : {compliance}%
+  ✅ Data Quality   : {quality}%
+
+----------------------------------------
+Deployment Status : {status}
+----------------------------------------
+
+This certificate is automatically generated
+by AI Guardian OS after Responsible AI assessment.
+========================================
+"""
+
+st.download_button(
+    "📄 Download Certificate (TXT)",
+    certificate,
+    file_name=f"AI_Trust_Certificate_{certificate_id}.txt",
+    mime="text/plain"
+)
+
+st.balloons()  # 🎉 Celebration animation
