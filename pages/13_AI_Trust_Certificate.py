@@ -1,124 +1,139 @@
-import streamlit as st  
-from datetime import datetime  
-import uuid  
+import streamlit as st
+from datetime import datetime
+import uuid
 
-st.set_page_config(page_title="AI Trust Certificate", page_icon="🛡️", layout="wide")  
+st.set_page_config(page_title="AI Trust Certificate", page_icon="🛡️", layout="wide")
 
-# Dark theme styling  
-st.markdown("""  
-<style>  
-    .stApp {  
-        background-color: #0e1117;  
-    }  
-    .main-title {  
-        color: #ffffff;  
-        font-size: 32px;  
-        font-weight: bold;  
-    }  
-    .sub-title {  
-        color: #9e9e9e;  
-        font-size: 16px;  
-    }  
-    .cert-container {  
-        background: linear-gradient(135deg, #1a1d27, #222736);  
-        border: 1px solid #2a2d3a;  
-        border-radius: 16px;  
-        padding: 35px;  
-        margin: 20px 0;  
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);  
-    }  
-    .cert-header {  
-        display: flex;  
-        align-items: center;  
-        gap: 12px;  
-        border-bottom: 1px solid #2a2d3a;  
-        padding-bottom: 15px;  
-        margin-bottom: 20px;  
-    }  
-    .cert-badge {  
-        background: #2a6b3c;  
-        color: white;  
-        padding: 4px 14px;  
-        border-radius: 20px;  
-        font-size: 12px;  
-        font-weight: bold;  
-    }  
-    .metric-box {  
-        background: #1e2130;  
-        border: 1px solid #2a2d3a;  
-        border-radius: 10px;  
-        padding: 15px;  
-        text-align: center;  
-    }  
-    .metric-value {  
-        color: white;  
-        font-size: 28px;  
-        font-weight: bold;  
-    }  
-    .metric-label {  
-        color: #9e9e9e;  
-        font-size: 12px;  
-        margin-top: 5px;  
-    }  
-    .score-row {  
-        display: flex;  
-        justify-content: space-between;  
-        padding: 10px 0;  
-        border-bottom: 1px solid #1e2130;  
-    }  
-    .score-label {  
-        color: #b0b0b0;  
-    }  
-    .score-value {  
-        color: #4caf50;  
-        font-weight: bold;  
-    }  
-</style>  
-""", unsafe_allow_html=True)  
+st.title("🛡️ AI Guardian OS")
+st.subheader("AI Trust Score & Certificate")
 
-st.markdown('<div class="main-title">🛡️ AI Guardian OS</div>', unsafe_allow_html=True)  
-st.markdown('<div class="sub-title">AI Trust Score & Certificate</div>', unsafe_allow_html=True)  
+# Get scores from previous pages if available
+fairness = st.session_state.get("fairness_score", 90)
+privacy = st.session_state.get("privacy_score", 95)
+explainability = st.session_state.get("explainability_score", 92)
+compliance = st.session_state.get("compliance_score", 91)
+quality = st.session_state.get("data_quality_score", 89)
 
-# Get scores from session state  
-fairness = st.session_state.get("fairness_score", 90)  
-privacy = st.session_state.get("privacy_score", 95)  
-explainability = st.session_state.get("explainability_score", 92)  
-compliance = st.session_state.get("compliance_score", 91)  
-quality = st.session_state.get("data_quality_score", 89)  
+# Trust Score
+trust_score = round(
+    fairness * 0.25 +
+    privacy * 0.20 +
+    explainability * 0.20 +
+    compliance * 0.20 +
+    quality * 0.15
+)
 
-# Calculate trust score  
-trust_score = round(fairness * 0.25 + privacy * 0.20 + explainability * 0.20 + compliance * 0.20 + quality * 0.15)  
+if trust_score >= 80:
+    status = "🟢 APPROVED FOR DEPLOYMENT"
+elif trust_score >= 60:
+    status = "🟡 REVIEW REQUIRED"
+else:
+    status = "🔴 REJECTED"
 
-if trust_score >= 80:  
-    status = "DEPLOYMENT APPROVED"  
-    status_color = "#4caf50"  
-elif trust_score >= 60:  
-    status = "REVIEW REQUIRED"  
-    status_color = "#ff9800"  
-else:  
-    status = "REJECTED"  
-    status_color = "#f44336"  
+st.markdown("---")
 
-st.markdown("---")  
+c1,c2,c3=st.columns(3)
 
-# Top metrics  
-col1, col2, col3 = st.columns(3)  
-with col1:  
-    st.markdown(f"""  
-    <div class="metric-box">  
-        <div class="metric-value">{trust_score}/100</div>  
-        <div class="metric-label">AI Trust Score</div>  
-    </div>  
-    """, unsafe_allow_html=True)  
-with col2:  
-    st.markdown(f"""  
-    <div class="metric-box">  
-        <div class="metric-value">{fairness}%</div>  
-        <div class="metric-label">Fairness</div>  
-    </div>  
-    """, unsafe_allow_html=True)  
-with col3:  
-    st.markdown(f"""  
-    <div class="metric-box">  
-        <div class="metric-value">{privacy}%</div>  
-        <
+c1.metric("🛡️ AI Trust Score",f"{trust_score}/100")
+c2.metric("Fairness",f"{fairness}%")
+c3.metric("Privacy",f"{privacy}%")
+
+st.progress(trust_score/100)
+
+st.success(status)
+
+st.markdown("## Score Breakdown")
+
+st.table({
+    "Category":[
+        "Fairness",
+        "Privacy",
+        "Explainability",
+        "Compliance",
+        "Data Quality"
+    ],
+    "Score":[
+        fairness,
+        privacy,
+        explainability,
+        compliance,
+        quality
+    ]
+})
+
+st.markdown("---")
+
+certificate_id="AIG-"+str(uuid.uuid4())[:8].upper()
+
+st.markdown("## 📜 AI TRUST CERTIFICATE")
+
+st.info(f"""
+
+### AI Guardian OS
+
+**Certificate ID:** {certificate_id}
+
+**Generated On:** {datetime.now().strftime("%d-%m-%Y")}
+
+---
+
+### Overall Trust Score
+
+# {trust_score}/100
+
+---
+
+✅ Fairness : PASS
+
+✅ Privacy : PASS
+
+✅ Explainability : PASS
+
+✅ Compliance : PASS
+
+✅ Data Quality : PASS
+
+---
+
+### Deployment Status
+
+{status}
+
+---
+
+This certificate is automatically generated by AI Guardian OS after Responsible AI assessment.
+
+""")
+
+certificate=f"""
+AI GUARDIAN OS
+
+AI TRUST CERTIFICATE
+
+Certificate ID : {certificate_id}
+
+Trust Score : {trust_score}/100
+
+Fairness : {fairness}
+
+Privacy : {privacy}
+
+Explainability : {explainability}
+
+Compliance : {compliance}
+
+Data Quality : {quality}
+
+Deployment Status : {status}
+
+Generated On : {datetime.now().strftime("%d-%m-%Y")}
+"""
+
+st.download_button(
+    "📄 Download Certificate",
+    certificate,
+    file_name="AI_Trust_Certificate.txt",
+    mime="text/plain"
+)
+
+st.balloons() i need certificate as as real
