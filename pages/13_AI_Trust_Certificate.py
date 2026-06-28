@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime
 import uuid
+import base64
 
 st.set_page_config(
     page_title="AI Trust Certificate", 
@@ -18,78 +19,73 @@ st.markdown("""
         background: linear-gradient(135deg, #1a1d27, #222736); 
         border: 1px solid #2a2d3a; 
         border-radius: 16px; 
-        padding: 35px; 
-        margin: 20px 0; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3); 
+        padding: 40px; 
+        margin: 30px 0; 
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4); 
     }
     .cert-header { 
         display: flex; 
         align-items: center; 
-        gap: 12px; 
-        border-bottom: 1px solid #2a2d3a; 
-        padding-bottom: 15px; 
-        margin-bottom: 20px; 
+        gap: 15px; 
+        border-bottom: 2px solid #2a2d3a; 
+        padding-bottom: 20px; 
+        margin-bottom: 25px; 
     }
     .cert-badge { 
         background: #2a6b3c; 
         color: white; 
-        padding: 4px 14px; 
-        border-radius: 20px; 
-        font-size: 12px; 
+        padding: 6px 18px; 
+        border-radius: 30px; 
+        font-size: 13px; 
         font-weight: bold; 
     }
     .metric-box { 
         background: #1e2130; 
         border: 1px solid #2a2d3a; 
-        border-radius: 10px; 
-        padding: 15px; 
+        border-radius: 12px; 
+        padding: 18px; 
         text-align: center; 
     }
     .metric-value { 
         color: white; 
-        font-size: 28px; 
+        font-size: 32px; 
         font-weight: bold; 
     }
     .metric-label { 
         color: #9e9e9e; 
-        font-size: 12px; 
-        margin-top: 5px; 
+        font-size: 13px; 
+        margin-top: 6px; 
     }
     .score-row { 
         display: flex; 
         justify-content: space-between; 
-        padding: 10px 0; 
+        padding: 12px 0; 
         border-bottom: 1px solid #1e2130; 
     }
     .score-label { color: #b0b0b0; }
     .score-value { color: #4caf50; font-weight: bold; }
+    .certificate-footer {
+        margin-top: 30px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Titles
-st.markdown("""
-    <h1 class="main-title">🛡️ AI Guardian OS</h1>
-""", unsafe_allow_html=True)
+st.markdown('<h1 class="main-title">🛡️ AI Guardian OS</h1>', unsafe_allow_html=True)
+st.markdown('<h2 class="sub-title">AI Trust Score & Certificate</h2>', unsafe_allow_html=True)
 
-st.markdown("""
-    <h2 class="sub-title">AI Trust Score & Certificate</h2>
-""", unsafe_allow_html=True)
-
-# Get scores from session state
+# Get scores
 fairness = st.session_state.get("fairness_score", 90)
 privacy = st.session_state.get("privacy_score", 95)
 explainability = st.session_state.get("explainability_score", 92)
 compliance = st.session_state.get("compliance_score", 91)
 quality = st.session_state.get("data_quality_score", 89)
 
-# Calculate trust score
-trust_score = round(
-    fairness * 0.25 + 
-    privacy * 0.20 + 
-    explainability * 0.20 + 
-    compliance * 0.20 + 
-    quality * 0.15
-)
+# Calculate overall trust score
+trust_score = round(fairness * 0.25 + privacy * 0.20 + explainability * 0.20 + compliance * 0.20 + quality * 0.15)
 
 if trust_score >= 80:
     status = "DEPLOYMENT APPROVED"
@@ -105,7 +101,6 @@ st.markdown("---")
 
 # Top metrics
 col1, col2, col3 = st.columns(3)
-
 with col1:
     st.markdown(f"""
         <div class="metric-box">
@@ -129,3 +124,59 @@ with col3:
             <div class="metric-label">Privacy</div>
         </div>
     """, unsafe_allow_html=True)
+
+# ==================== CERTIFICATE CONTAINER ====================
+cert_id = str(uuid.uuid4())[:8].upper()
+issue_date = datetime.now().strftime("%B %d, %Y")
+
+st.markdown(f"""
+<div class="cert-container">
+    <div class="cert-header">
+        <h2 style="margin:0; color:white;">AI Trust Certificate</h2>
+        <span class="cert-badge">{status}</span>
+    </div>
+    
+    <h3 style="color:#4caf50; text-align:center; margin:20px 0;">Trust Score: <strong>{trust_score}/100</strong></h3>
+    
+    <div style="background:#161821; padding:20px; border-radius:10px; margin:25px 0;">
+        <div class="score-row"><span class="score-label">Fairness</span><span class="score-value">{fairness}%</span></div>
+        <div class="score-row"><span class="score-label">Privacy</span><span class="score-value">{privacy}%</span></div>
+        <div class="score-row"><span class="score-label">Explainability</span><span class="score-value">{explainability}%</span></div>
+        <div class="score-row"><span class="score-label">Compliance</span><span class="score-value">{compliance}%</span></div>
+        <div class="score-row"><span class="score-label">Data Quality</span><span class="score-value">{quality}%</span></div>
+    </div>
+    
+    <div class="certificate-footer">
+        Certificate ID: <strong>{cert_id}</strong><br>
+        Issued on: {issue_date}<br><br>
+        <em>This certificate is generated by AI Guardian OS</em>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ==================== DOWNLOAD BUTTON ====================
+certificate_html = f"""
+<h1>AI Trust Certificate</h1>
+<h2>Trust Score: {trust_score}/100 — {status}</h2>
+<p><strong>Certificate ID:</strong> {cert_id}</p>
+<p><strong>Issued:</strong> {issue_date}</p>
+<hr>
+<p>Fairness: {fairness}%</p>
+<p>Privacy: {privacy}%</p>
+<p>Explainability: {explainability}%</p>
+<p>Compliance: {compliance}%</p>
+<p>Data Quality: {quality}%</p>
+<p style="color:#4caf50; font-weight:bold;">✅ {status}</p>
+"""
+
+b64 = base64.b64encode(certificate_html.encode()).decode()
+href = f'data:text/html;base64,{b64}'
+
+st.download_button(
+    label="📄 Download Certificate (HTML)",
+    data=certificate_html,
+    file_name=f"AI_Trust_Certificate_{cert_id}.html",
+    mime="text/html"
+)
+
+st.caption("Tip: Open the downloaded HTML file and print → 'Save as PDF' for a clean certificate.")
