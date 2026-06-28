@@ -83,19 +83,23 @@ def dashboard():
     with c4: st.metric("Alerts", "3")
 
 # ==========================================================
-# SIDEBAR - TOP 10 QUESTIONS
+# SIDEBAR - WITH GOOD QUESTIONS
 # ==========================================================
 def sidebar():
     st.sidebar.title("🛡 GuardianGPT")
+    
+    # Agent Selector
     st.sidebar.selectbox(
         "Active Agent",
         ["Auto", "Compliance", "Risk", "Fairness", "Privacy", "Explainability", "Monitoring", "Reports"],
         key="guardian_agent"
     )
+    
     st.sidebar.divider()
-    st.sidebar.markdown("### 🔥 Top 10 Questions")
+    st.sidebar.markdown("### 💡 Good Questions to Ask")
 
-    top_questions = [
+    # Top Questions
+    questions = [
         "Hello, who are you?",
         "Tell me about GuardianGPT",
         "What can you help me with?",
@@ -105,10 +109,11 @@ def sidebar():
         "Check EU AI Act compliance",
         "What are the main risks in my model?",
         "Explain SHAP values",
+        "Assess privacy risks",
         "Generate executive summary"
     ]
     
-    for q in top_questions:
+    for q in questions:
         if st.sidebar.button(q, use_container_width=True):
             st.session_state.guardian_messages.append({
                 "id": str(uuid.uuid4()),
@@ -117,7 +122,6 @@ def sidebar():
                 "time": datetime.now(),
             })
             st.rerun()
-
 # ==========================================================
 # STREAMING RESPONSE
 # ==========================================================
