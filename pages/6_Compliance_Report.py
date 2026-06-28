@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import io
 import sqlite3
 from pathlib import Path
 
