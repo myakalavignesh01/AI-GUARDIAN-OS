@@ -79,14 +79,12 @@ cert_html = f"""
     position: relative;  
     font-family: 'Georgia', 'Times New Roman', serif;  
 ">  
-    <!-- Inner border -->  
     <div style="  
         position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px;  
         border: 1px solid rgba(184,134,11,0.25);  
         pointer-events: none;  
     "></div>  
 
-    <!-- Watermark -->  
     <div style="  
         position: absolute; top: 50%; left: 50%;  
         transform: translate(-50%, -50%) rotate(-25deg);  
@@ -95,7 +93,6 @@ cert_html = f"""
         white-space: nowrap; pointer-events: none;  
     ">AI GUARDIAN</div>  
 
-    <!-- Seal & Org -->  
     <div style="text-align: center; position: relative; z-index: 1;">  
         <div style="font-size: 48px;">🛡️</div>  
         <div style="  
@@ -109,13 +106,11 @@ cert_html = f"""
         ">Responsible AI Assessment System</div>  
     </div>  
 
-    <!-- Gold divider -->  
     <div style="  
         width: 60%; height: 2px; margin: 15px auto;  
         background: linear-gradient(to right, transparent, #b8860b, transparent);  
     "></div>  
 
-    <!-- Title -->  
     <div style="text-align: center; position: relative; z-index: 1;">  
         <h2 style="  
-            font-size: 30px; color
+            font-size: 30px; color: #1a3a5c; text-transform
